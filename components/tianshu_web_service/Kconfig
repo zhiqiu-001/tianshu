@@ -1,0 +1,23 @@
+menu "Tianshu Web Service"
+
+    config TIANSHU_WEB_SERVICE_ENABLE
+        bool "Enable Tianshu Web Service"
+        default y
+        help
+            Enable the Tianshu Web Service component.
+
+    config TIANSHU_WEB_SERVICE_PORT
+        int "Web Server Port"
+        default 80
+        depends on TIANSHU_WEB_SERVICE_ENABLE
+        help
+            HTTP port for the web server.
+
+    config TIANSHU_WEB_SERVICE_SPIFFS_ENABLE
+        bool "Enable SPIFFS for static files"
+        default y
+        depends on TIANSHU_WEB_SERVICE_ENABLE
+        help
+            Enable SPIFFS to serve static web files.
+
+endmenu

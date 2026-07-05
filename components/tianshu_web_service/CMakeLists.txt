@@ -1,0 +1,12 @@
+idf_component_register(SRCS 
+                        "web_server/web_server.cc"
+                    INCLUDE_DIRS 
+                        "."
+                        "web_server"
+                    PRIV_REQUIRES
+                        esp_http_server
+                        spiffs
+                        json
+                        esp_system
+                        tianshu_mesh_core
+                    )

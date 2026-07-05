@@ -1,0 +1,18 @@
+menu "Tianshu Board Configuration"
+
+    choice BOARD_TYPE_CHOICE
+        prompt "Board Type"
+        default BOARD_TYPE_TIANSHU_MESH
+
+        config BOARD_TYPE_TIANSHU_MESH
+            bool "Tianshu Mesh (Standard)"
+
+    endchoice
+
+    config BOARD_NAME
+        string "Board Name"
+        default "tianshu-mesh"
+        help
+            Custom name for the board.
+
+endmenu

@@ -1,0 +1,30 @@
+menu "Tianshu Mesh Core"
+
+    config TIANSHU_MESH_CORE_ENABLE
+        bool "Enable Tianshu Mesh Core"
+        default y
+        help
+            Enable the Tianshu Mesh Core component.
+
+    config TIANSHU_MESH_MAX_NODES
+        int "Maximum number of mesh nodes"
+        default 32
+        depends on TIANSHU_MESH_CORE_ENABLE
+        help
+            Maximum number of nodes in the mesh network.
+
+    config TIANSHU_MESH_MAX_CONNECTIONS
+        int "Maximum direct connections per node"
+        default 8
+        depends on TIANSHU_MESH_CORE_ENABLE
+        help
+            Maximum number of direct connections per node.
+
+    config TIANSHU_HOST_ELECTION_ENABLE
+        bool "Enable Host Election"
+        default y
+        depends on TIANSHU_MESH_CORE_ENABLE
+        help
+            Enable automatic host election functionality.
+
+endmenu

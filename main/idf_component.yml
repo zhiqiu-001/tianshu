@@ -1,0 +1,6 @@
+dependencies:
+  idf: ">=5.0"
+
+description: "Tianshu Main Application"
+version: "1.0.0"
+license: "Apache-2.0"

@@ -1,0 +1,12 @@
+{
+    "target": "esp32c3",
+    "manufacturer": "tianshu",
+    "builds": [
+        {
+            "name": "tianshu-mesh",
+            "sdkconfig_append": [
+                "CONFIG_PARTITION_TABLE_CUSTOM_FILENAME=\"partitions/v1/4m.csv\""
+            ]
+        }
+    ]
+}

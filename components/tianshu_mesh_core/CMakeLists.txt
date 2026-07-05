@@ -1,0 +1,17 @@
+idf_component_register(SRCS 
+                        "mesh_network/mesh_network.cc"
+                        "host_election/host_election.cc"
+                        "protocols/mesh_proto.cc"
+                    INCLUDE_DIRS 
+                        "."
+                        "mesh_network"
+                        "host_election"
+                        "protocols"
+                    PRIV_REQUIRES
+                        bt
+                        esp_netif
+                        esp_wifi
+                        esp_event
+                        freertos
+                        esp_system
+                    )
