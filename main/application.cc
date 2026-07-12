@@ -2,6 +2,7 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "host_election.h"
 
 #define TAG "APPLICATION"
 #define MAIN_LOOP_DELAY_MS 1000
@@ -29,7 +30,9 @@ int Application::Initialize()
     if (sensor_manager) sensor_manager->Scan();
     if (mesh_network) mesh_network->Init();
     if (host_election) host_election->Init(mesh_network);
-    if (web_server) web_server->Init();
+    if (web_server) {
+        ESP_LOGI(TAG, "Web server will be initialized on master only");
+    }
     
     state_ = AppState::INIT;
     initialized_ = true;
@@ -93,7 +96,6 @@ void Application::Run()
                 auto mesh_network = board.GetMeshNetwork();
                 if (mesh_network) {
                     if (mesh_network->Init() == 0) {
-                        board.StartNetwork();
                         if (mesh_network->Join() == 0) {
                             Transition(AppState::MESH_INIT);
                         }
@@ -105,29 +107,57 @@ void Application::Run()
             }
             
             case AppState::MESH_INIT: {
+                Transition(AppState::HOST_ELECTION);
+                break;
+            }
+            
+            case AppState::HOST_ELECTION: {
                 auto host_election = board.GetHostElection();
-                if (host_election && host_election->Init(board.GetMeshNetwork()) == 0) {
-                    Transition(AppState::HOST_ELECTION);
+                if (host_election) {
+                    host_election->Run();
+                    
+                    if (host_election->IsElectionComplete()) {
+                        ESP_LOGI(TAG, "Host election complete, role: %s", 
+                                 host_election->IsMaster() ? "MASTER" : "SLAVE");
+                        Transition(AppState::RUNNING);
+                    } else {
+                        ESP_LOGD(TAG, "Host election in progress: %d%%", 
+                                 host_election->GetElectionProgress());
+                    }
                 } else {
                     Transition(AppState::RUNNING);
                 }
                 break;
             }
             
-            case AppState::HOST_ELECTION: {
-                Transition(AppState::RUNNING);
-                break;
-            }
-            
             case AppState::RUNNING: {
                 board.Update();
+                
+                auto mesh_network = board.GetMeshNetwork();
+                if (mesh_network) mesh_network->Run();
                 
                 auto host_election = board.GetHostElection();
                 if (host_election) host_election->Run();
                 
                 auto web_server = board.GetWebServer();
-                if (web_server && !web_server->IsRunning()) {
-                    web_server->Start();
+                if (web_server) {
+                    bool is_master = host_election ? host_election->IsMaster() : true;
+                    bool election_stable = !host_election || 
+                                          host_election->GetElectionState() == ElectionState::STABLE;
+                    
+                    if (is_master && election_stable) {
+                        if (!web_server->IsRunning()) {
+                            ESP_LOGI(TAG, "Device is master and election is stable, starting web server");
+                            if (web_server->Init() == 0) {
+                                web_server->Start();
+                            }
+                        }
+                    } else {
+                        if (web_server->IsRunning()) {
+                            ESP_LOGI(TAG, "Device is not master or election not stable, stopping web server");
+                            web_server->Stop();
+                        }
+                    }
                 }
                 break;
             }
@@ -146,11 +176,6 @@ void Application::Run()
 AppState Application::GetState() const
 {
     return state_;
-}
-
-Board* Application::GetBoard() const
-{
-    return &Board::GetInstance();
 }
 
 int Application::Transition(AppState next_state)

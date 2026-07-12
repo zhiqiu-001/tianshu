@@ -2,6 +2,7 @@
 #include "esp_log.h"
 #include "esp_system.h"
 #include "esp_mac.h"
+#include "web_server.h"
 
 #define TAG "BOARD_TIANSHU_MESH"
 
@@ -16,16 +17,19 @@ public:
         esp_read_mac(mac_, ESP_MAC_WIFI_STA);
         ESP_LOGI(TAG, "Board MAC: %02X:%02X:%02X:%02X:%02X:%02X",
                  mac_[0], mac_[1], mac_[2], mac_[3], mac_[4], mac_[5]);
+        
+        web_server_.RegisterDataCallback("/api/status", []() {
+            return Board::GetInstance().GetSystemInfoJson();
+        });
+        
+        web_server_.RegisterDataCallback("/api/device", []() {
+            return Board::GetInstance().GetDeviceStatusJson();
+        });
     }
 
     ~BoardTianShuMesh() override {}
 
     std::string GetBoardType() override { return "tianshu-mesh"; }
-
-    Display* GetDisplay() override {
-        static NoDisplay display;
-        return &display;
-    }
 
     SensorManager* GetSensorManager() override { return &sensor_manager_; }
 
@@ -33,15 +37,7 @@ public:
 
     HostElection* GetHostElection() override { return &host_election_; }
 
-    WebServer* GetWebServer() override { return &web_server_; }
-
-    void StartNetwork() override {
-        ESP_LOGI(TAG, "Starting network...");
-    }
-
-    const char* GetNetworkStateIcon() override {
-        return "wifi";
-    }
+    EspHttpWebServer* GetWebServer() override { return &web_server_; }
 
     std::string GetBoardJson() override {
         return R"({"type":"tianshu-mesh","features":["ble-mesh","wifi","sensor","webserver"]})";
@@ -58,10 +54,6 @@ public:
         return json;
     }
 
-    void SetPowerSaveLevel(PowerSaveLevel level) override {
-        ESP_LOGI(TAG, "SetPowerSaveLevel: %d", static_cast<int>(level));
-    }
-
     int Update() override {
         uptime_++;
         return 0;
@@ -74,7 +66,7 @@ private:
     SensorManager sensor_manager_;
     MeshNetwork mesh_network_;
     HostElection host_election_;
-    WebServer web_server_;
+    EspHttpWebServer web_server_;
 };
 
 DECLARE_BOARD(BoardTianShuMesh)

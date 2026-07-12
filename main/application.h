@@ -2,7 +2,7 @@
 #define APPLICATION_H
 
 #include <string>
-#include "boards/common/board.h"
+#include "board.h"
 
 enum class AppState {
     INIT = 0,
@@ -31,7 +31,6 @@ public:
     void Run();
 
     AppState GetState() const;
-    Board* GetBoard() const;
 
 private:
     int Transition(AppState next_state);

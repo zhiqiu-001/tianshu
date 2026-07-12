@@ -1,6 +1,0 @@
-{
-    "type": "tianshu-mesh",
-    "name": "Tianshu Mesh Standard",
-    "features": ["ble-mesh", "wifi", "sensor", "webserver"],
-    "target": "esp32c3"
-}

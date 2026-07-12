@@ -52,8 +52,8 @@ idf_component_register(SRCS ${SOURCES}
                         esp_system
                         esp_event
                         driver
-                        tianshu_mesh_core
-                        tianshu_web_service
+                        tianshu_core
+                        tianshu_web
                     )
 
 target_compile_definitions(${COMPONENT_LIB}

@@ -1,4 +1,5 @@
 #include "board.h"
+#include "display.h"
 #include "esp_log.h"
 #include "esp_random.h"
 #include "esp_chip_info.h"
@@ -7,6 +8,7 @@
 #include "esp_partition.h"
 
 #define TAG "Board"
+
 
 Board::Board() {
     uuid_ = GenerateUuid();
@@ -41,18 +43,15 @@ SensorManager* Board::GetSensorManager() {
 }
 
 MeshNetwork* Board::GetMeshNetwork() {
-    static NoMeshNetwork mesh_network;
-    return &mesh_network;
+    return mesh_network_;
 }
 
 HostElection* Board::GetHostElection() {
-    static NoHostElection host_election;
-    return &host_election;
+    return host_election_;  
 }
 
-WebServer* Board::GetWebServer() {
-    static NoWebServer web_server;
-    return &web_server;
+EspHttpWebServer* Board::GetWebServer() {
+    return nullptr;
 }
 
 bool Board::GetTemperature(float& esp32temp) {
@@ -101,4 +100,8 @@ std::string Board::GetSystemInfoJson() {
 
     json += R"(})";
     return json;
+}
+
+Board& GetBoardInstance() {
+    return Board::GetInstance();
 }

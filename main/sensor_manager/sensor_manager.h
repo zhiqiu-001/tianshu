@@ -48,14 +48,15 @@ public:
     SensorManager() : sensor_count_(0) {
         memset(sensors_, 0, sizeof(sensors_));
     }
+    virtual ~SensorManager() = default;
     
-    int Scan() {
+    virtual int Scan() {
         ESP_LOGI(TAG_SENSOR_MANAGER, "Scanning for sensors...");
         sensor_count_ = 0;
         return 0;
     }
     
-    int Read(uint8_t *sensor_id, float *value) {
+    virtual int Read(uint8_t *sensor_id, float *value) {
         for (int i = 0; i < sensor_count_; i++) {
             if (memcmp(sensors_[i].id, sensor_id, SENSOR_ID_LEN) == 0) {
                 *value = sensors_[i].value;
@@ -66,7 +67,7 @@ public:
         return -1;
     }
     
-    int Write(uint8_t *sensor_id, float value) {
+    virtual int Write(uint8_t *sensor_id, float value) {
         for (int i = 0; i < sensor_count_; i++) {
             if (memcmp(sensors_[i].id, sensor_id, SENSOR_ID_LEN) == 0) {
                 sensors_[i].value = value;
@@ -77,7 +78,7 @@ public:
         return -1;
     }
     
-    int GetInfo(uint8_t *sensor_id, sensor_t *info) {
+    virtual int GetInfo(uint8_t *sensor_id, sensor_t *info) {
         for (int i = 0; i < sensor_count_; i++) {
             if (memcmp(sensors_[i].id, sensor_id, SENSOR_ID_LEN) == 0) {
                 memcpy(info, &sensors_[i], sizeof(sensor_t));
@@ -87,9 +88,9 @@ public:
         return -1;
     }
     
-    int GetSensorCount() const { return sensor_count_; }
+    virtual int GetSensorCount() const { return sensor_count_; }
     
-    sensor_t* GetSensor(int index) { 
+    virtual sensor_t* GetSensor(int index) { 
         return (index < sensor_count_) ? &sensors_[index] : nullptr; 
     }
 
@@ -100,12 +101,12 @@ private:
 
 class NoSensorManager : public SensorManager {
 public:
-    int Scan() { return 0; }
-    int Read(uint8_t *sensor_id, float *value) { (void)sensor_id; (void)value; return -1; }
-    int Write(uint8_t *sensor_id, float value) { (void)sensor_id; (void)value; return -1; }
-    int GetInfo(uint8_t *sensor_id, sensor_t *info) { (void)sensor_id; (void)info; return -1; }
-    int GetSensorCount() const { return 0; }
-    sensor_t* GetSensor(int index) { (void)index; return nullptr; }
+    int Scan() override { return 0; }
+    int Read(uint8_t *sensor_id, float *value) override { (void)sensor_id; (void)value; return -1; }
+    int Write(uint8_t *sensor_id, float value) override { (void)sensor_id; (void)value; return -1; }
+    int GetInfo(uint8_t *sensor_id, sensor_t *info) override { (void)sensor_id; (void)info; return -1; }
+    int GetSensorCount() const override { return 0; }
+    sensor_t* GetSensor(int index) override { (void)index; return nullptr; }
 };
 
 #endif

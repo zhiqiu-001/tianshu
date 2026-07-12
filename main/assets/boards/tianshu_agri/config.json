@@ -1,6 +1,0 @@
-{
-    "type": "tianshu-agri",
-    "name": "Tianshu Mesh Agriculture",
-    "features": ["ble-mesh", "wifi", "sensor", "gps", "webserver"],
-    "target": "esp32c3"
-}
